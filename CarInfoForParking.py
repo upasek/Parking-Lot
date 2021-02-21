@@ -1,6 +1,7 @@
 from tkinter import font
 import tkinter
 from datetime import datetime, date
+import GenerateRandomInfo
 
 
 # class for getting all car information
@@ -22,6 +23,8 @@ class Enter_car(object):
         carNumberLabel.grid(row=1, column=0, sticky='ne')
         carNumberLabel['font'] = tkinter.font.Font(size=10, family='Helvetica', weight='bold')
         self.carNumberEntry = tkinter.Entry(self.f3)
+        CN = GenerateRandomInfo.CarNumberRand()
+        self.carNumberEntry.insert(0, CN)                                # insert an information in entry box
         self.carNumberEntry.grid(row=1, column=1, sticky='n')
 
         # label and entry for car color
@@ -29,6 +32,8 @@ class Enter_car(object):
         carColorLabel.grid(row=2, column=0, sticky='ne')
         carColorLabel['font'] = tkinter.font.Font(size=10, family='Helvetica', weight='bold')
         self.carColorEntry = tkinter.Entry(self.f3)
+        CC = GenerateRandomInfo.CarColorRand()
+        self.carColorEntry.insert(0, CC)                                 # insert an information in entry box
         self.carColorEntry.grid(row=2, column=1, sticky='n')
 
         # label and entry for car type
@@ -36,6 +41,8 @@ class Enter_car(object):
         carTypeLabel.grid(row=3, column=0, sticky='ne')
         carTypeLabel['font'] = tkinter.font.Font(size=10, family='Helvetica', weight='bold')
         self.carTypeEntry = tkinter.Entry(self.f3)
+        CT = GenerateRandomInfo.CarTypeRand()
+        self.carTypeEntry.insert(0, CT)
         self.carTypeEntry.grid(row=3, column=1, sticky='n')
 
         # label and entry for card type
@@ -43,6 +50,8 @@ class Enter_car(object):
         cardTypeLabel.grid(row=4, column=0, sticky='ne')
         cardTypeLabel['font'] = tkinter.font.Font(size=10, family='Helvetica', weight='bold')
         self.cardTypeEntry = tkinter.Entry(self.f3)
+        CardT = GenerateRandomInfo.getCardType()
+        self.cardTypeEntry.insert(0, CardT)
         self.cardTypeEntry.grid(row=4, column=1, sticky='n')
 
         # label and entry for card number
@@ -50,6 +59,8 @@ class Enter_car(object):
         cardNumberLabel.grid(row=5, column=0, sticky='ne')
         cardNumberLabel['font'] = tkinter.font.Font(size=10, family='Helvetica', weight='bold')
         self.cardNumberEntry = tkinter.Entry(self.f3)
+        CardN = GenerateRandomInfo.getCardNumber()
+        self.cardNumberEntry.insert(0, CardN)
         self.cardNumberEntry.grid(row=5, column=1, sticky='n')
 
         ok = tkinter.Button(self.f3, text="Ok", bg='#FF7F50', activebackground='#FFA500',
@@ -176,9 +187,13 @@ class Enter_car(object):
         okButton = tkinter.Button(self.f4, text='Ok', bg='#FF7F50', activebackground='#FFA500',
                                   command=self.destroyFrame)
         okButton.grid(row=2, column=2, sticky='nw')
+
+        backButton = tkinter.Button(self.f4, text='Back', bg='#FF7F50', activebackground='#FFA500',
+                                    command=self.f4.destroy)
+        backButton.grid(row=2, column=2, sticky='en')
         # print button on f4 frame
         printButton = tkinter.Button(self.f4, text='Print', bg='#FF7F50', activebackground='#FFA500')
-        printButton.grid(row=2, column=1, sticky='ne')
+        printButton.grid(row=2, column=1, sticky='nw')
 
         # configure the row of frame f4
         self.f4.rowconfigure(0, weight=1)
