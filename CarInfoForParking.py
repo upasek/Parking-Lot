@@ -2,10 +2,18 @@ from tkinter import font
 import tkinter
 from datetime import datetime, date
 import GenerateRandomInfo
+import SendEmail
 
 
 # class for getting all car information
 class Enter_car(object):
+
+    def __init__(self):
+        self.carNumber = None
+        self.carType = None
+        self.carColor = None
+        self.__cardType = None
+        self.__cardNumber = None
 
     def carInfoFrame(self):
 
@@ -83,12 +91,13 @@ class Enter_car(object):
         self.f3.columnconfigure(2, weight=1)
 
     # methode for showing an warning
-    def smallWindow(self):
+    def WarningWindow(self):
 
         self.window = tkinter.Tk()
         self.window.title("PARKING LOT")
         self.window.geometry("200x100-200-400")
         self.window.config(bg="#FA8072")
+        self.window['pady'] = 5
 
         label = tkinter.Label(self.window, text="WARNING!", bg='#FA8072')
         label.pack(side='top')
@@ -102,7 +111,7 @@ class Enter_car(object):
                             command=self.window.destroy)
         ok.pack(side='bottom', anchor='n')
         ok['font'] = tkinter.font.Font(size=15)
-        ok['padx'] = 20
+        # ok['pady'] = 5
 
         self.window.minsize(200, 100)
         self.window.maxsize(200, 100)
@@ -114,35 +123,25 @@ class Enter_car(object):
             self.info()
             return self.ParkingTicket()
         else:
-            return self.smallWindow()
+            return self.WarningWindow()
 
     # methode for assigned all info
     def info(self):
         self.carNumber = self.carNumberEntry.get()
         self.carType = self.carTypeEntry.get()
         self.carColor = self.carColorEntry.get()
-        self.cardType = self.cardTypeEntry.get()
-        self.cardNumber = self.cardNumberEntry.get()
-
-    def getCarNum(self):
-        return self.carNumber
-
-    def getCarType(self):
-        return self.carType
-
-    def getCarColor(self):
-        return self.carColor
+        self.__cardType = self.cardTypeEntry.get()
+        self.__cardNumber = self.cardNumberEntry.get()
 
     # methode for show user parking ticket
     def ParkingTicket(self):
 
         now = datetime.now()
-        self.carNum = self.getCarNum()
-        self.carType = self.getCarType()
-        self.carColor = self.getCarColor()
+        self.data = date.today()
+        self.timeNow = now.strftime('%I:%M %p')
 
         arr1 = ['\tCar Number', '\tCar Type', '\tCar Color', '\tParking Date', '\tParking Time']
-        arr2 = [self.carNum, self.carType, self.carColor, date.today(), now.strftime('%H:%M %p')]
+        arr2 = [self.carNumber, self.carType, self.carColor, date.today(), now.strftime('%I:%M %p')]
 
         # frame for parking ticket
         self.f4 = tkinter.Frame()
@@ -192,8 +191,9 @@ class Enter_car(object):
                                     command=self.f4.destroy)
         backButton.grid(row=2, column=2, sticky='en')
         # print button on f4 frame
-        printButton = tkinter.Button(self.f4, text='Print', bg='#FF7F50', activebackground='#FFA500')
-        printButton.grid(row=2, column=1, sticky='nw')
+        getTicketButton = tkinter.Button(self.f4, text='Get Ticket', bg='#FF7F50', activebackground='#FFA500',
+                                     command=self.sendInfoToMail)
+        getTicketButton.grid(row=2, column=1, sticky='nw')
 
         # configure the row of frame f4
         self.f4.rowconfigure(0, weight=1)
@@ -209,6 +209,22 @@ class Enter_car(object):
     def destroyFrame(self):
         self.f4.destroy()
         self.f3.destroy()
+
+    def sendInfoToMail(self):
+        # parking ticket
+        str = f"""
+        __________________________________________
+        
+         \t\tCar Number : {self.carNumber}
+         \t\tCar Type : {self.carType}
+         \t\tCar Color : {self.carColor}
+         \t\tDate : {self.data}
+         \t\tParking Time : {self.timeNow}
+        _________________________________________"""
+
+        # object of sendEmail class
+        obj = SendEmail.sendParkingTicket(str)
+        obj.windowForEmail()
 
     # Store Information in Data base
     def storeInfoInDB(self):
