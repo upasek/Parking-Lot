@@ -1,6 +1,7 @@
 import tkinter
 from tkinter import font
 import CarInfoForParking
+import GenerateRandomInfo
 from CarInfoForExit import ExitCarInfo
 
 
@@ -21,7 +22,7 @@ class parkingLot(object):
         ob = CarInfoForParking.Enter_car()
         # button for enter your car on self.mainWindow
         EnterCar = tkinter.Button(self.mainWindow, text='Enter Car', bg='#FF7F50', activebackground='#FFA500',
-                                  command=ob.carInfoFrame)
+                                  command=self.CheckSpot)
         EnterCar.grid(row=1, column=1, sticky='w')
         EnterCar['font'] = tkinter.font.Font(size=15)
 
@@ -47,6 +48,27 @@ class parkingLot(object):
         self.mainWindow.maxsize(640, 480)
 
         self.mainWindow.mainloop()
+
+    def CheckSpot(self):
+        ob = CarInfoForParking.Enter_car()
+        if GenerateRandomInfo.getSpotNumDB() is None:
+            self.warning = tkinter.Tk()
+            self.warning.title("Parking Lot")
+            self.warning.geometry("200x70-250-400")
+            self.warning.config(bg="#FA8072")
+            self.warning["pady"] = 15
+
+            label = tkinter.Label(self.warning, text="Sorry, Spot is not available !", bg="#FA8072")
+            label.pack()
+
+            self.warning.minsize(200, 70)
+            self.warning.maxsize(200, 70)
+
+            self.warning.after(2500, self.warning.destroy)
+
+            self.warning.mainloop()
+        else:
+            ob.carInfoFrame()
 
 
 if __name__ == '__main__':
