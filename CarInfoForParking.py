@@ -3,6 +3,13 @@ import tkinter
 from datetime import datetime, date
 import GenerateRandomInfo
 import SendEmail
+import mysql.connector
+mydb = mysql.connector.Connect(
+    host='localhost',
+    user='root',
+    password='Kiran@982326',
+    database='ParkingLot'
+)
 
 
 # class for getting all car information
@@ -14,6 +21,9 @@ class Enter_car(object):
         self.carColor = None
         self.__cardType = None
         self.__cardNumber = None
+        self.SpotNum = None
+        self.date = None
+        self.timeNow = None
 
     def carInfoFrame(self):
 
@@ -121,6 +131,7 @@ class Enter_car(object):
     def CheckInfo(self):
         if self.carColorEntry.get() and self.carTypeEntry.get() and self.carNumberEntry.get() and self.cardTypeEntry.get() and self.cardNumberEntry.get():
             self.info()
+            self.storeInfoInDB()
             return self.ParkingTicket()
         else:
             return self.WarningWindow()
@@ -132,16 +143,16 @@ class Enter_car(object):
         self.carColor = self.carColorEntry.get()
         self.__cardType = self.cardTypeEntry.get()
         self.__cardNumber = self.cardNumberEntry.get()
+        self.SpotNum = GenerateRandomInfo.getSpotNumDB()
+        now = datetime.now()
+        self.date = date.today()
+        self.timeNow = now.strftime('%I:%M %p')
 
     # methode for show user parking ticket
     def ParkingTicket(self):
 
-        now = datetime.now()
-        self.data = date.today()
-        self.timeNow = now.strftime('%I:%M %p')
-
-        arr1 = ['\tCar Number', '\tCar Type', '\tCar Color', '\tParking Date', '\tParking Time']
-        arr2 = [self.carNumber, self.carType, self.carColor, date.today(), now.strftime('%I:%M %p')]
+        arr1 = ['\tCar Number', '\tCar Type', '\tCar Color', '\tParking Date', '\tParking Time', '\tSpot Number']
+        arr2 = [self.carNumber, self.carType, self.carColor, self.date, self.timeNow, self.SpotNum]
 
         # frame for parking ticket
         self.f4 = tkinter.Frame()
@@ -155,12 +166,12 @@ class Enter_car(object):
 
         # frame for show all parking ticket info on frame f4
         la = tkinter.Frame(self.f4)
-        la.place(x=140, y=90, width=330, height=240)
+        la.place(x=160, y=90, width=330, height=260)
         la.config(bg='#90EE90')
         la['padx'] = 8
 
         # show all information on parking ticket
-        for i in range(5):
+        for i in range(6):
             text = tkinter.Label(la, text=arr1[i], bg='#90EE90')
             text.grid(row=i, column=0, sticky='w')
             text['font'] = tkinter.font.Font(size=10, family='Helvetica', weight='bold')
@@ -174,7 +185,7 @@ class Enter_car(object):
             data['font'] = tkinter.font.Font(size=10, family='Helvetica', weight='bold')
 
         #  configure the row of frame la
-        for i in range(5):
+        for i in range(6):
             la.rowconfigure(i, weight=1)
 
         # configure the column of frame la
@@ -183,13 +194,13 @@ class Enter_car(object):
         la.columnconfigure(2, weight=3)
 
         # ok button on f4 frame
-        okButton = tkinter.Button(self.f4, text='Ok', bg='#FF7F50', activebackground='#FFA500',
+        okButton = tkinter.Button(self.f4, text='  Ok  ', bg='#FF7F50', activebackground='#FFA500',
                                   command=self.destroyFrame)
-        okButton.grid(row=2, column=2, sticky='nw')
+        okButton.grid(row=2, column=1, sticky='ne')
 
-        backButton = tkinter.Button(self.f4, text='Back', bg='#FF7F50', activebackground='#FFA500',
-                                    command=self.f4.destroy)
-        backButton.grid(row=2, column=2, sticky='en')
+        # backButton = tkinter.Button(self.f4, text='Back', bg='#FF7F50', activebackground='#FFA500',
+        #                             command=self.f4.destroy)
+        # backButton.grid(row=2, column=2, sticky='en')
         # print button on f4 frame
         getTicketButton = tkinter.Button(self.f4, text='Get Ticket', bg='#FF7F50', activebackground='#FFA500',
                                      command=self.sendInfoToMail)
@@ -197,7 +208,7 @@ class Enter_car(object):
 
         # configure the row of frame f4
         self.f4.rowconfigure(0, weight=1)
-        self.f4.rowconfigure(1, weight=2)
+        self.f4.rowconfigure(1, weight=3)
         self.f4.rowconfigure(2, weight=1)
 
         # configure the column of frame f4
@@ -207,6 +218,7 @@ class Enter_car(object):
 
     # destroy Frame f4 and f3
     def destroyFrame(self):
+        # self.storeInfoInDB()
         self.f4.destroy()
         self.f3.destroy()
 
@@ -218,8 +230,9 @@ class Enter_car(object):
          \t\tCar Number : {self.carNumber}
          \t\tCar Type : {self.carType}
          \t\tCar Color : {self.carColor}
-         \t\tDate : {self.data}
+         \t\tDate : {self.date}
          \t\tParking Time : {self.timeNow}
+         \t\tSpot : {self.SpotNum}
         _________________________________________"""
 
         # object of sendEmail class
@@ -228,4 +241,23 @@ class Enter_car(object):
 
     # Store Information in Data base
     def storeInfoInDB(self):
-        pass
+        myc = mydb.cursor()
+        sql = "INSERT INTO ParkingLot.ParkingInfo(CarNumber, CarColor, CarType, CardType, CardNumber, ParkingTime, ParkingDate, SpotNum) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
+        val = [str(self.carNumber),
+               str(self.carColor),
+               str(self.carType),
+               str(self.__cardType),
+               str(self.__cardNumber),
+               str(self.timeNow),
+               str(self.date),
+               self.SpotNum]
+
+        myc.execute(sql, val)
+
+        sql = "UPDATE ParkingSpot SET Spot = 'Parked' WHERE SrNum = %s"
+        val = [self.SpotNum]
+
+        myc.execute(sql, val)
+
+        mydb.commit()
+
