@@ -1,5 +1,15 @@
 from random import *
 import string
+import mysql.connector
+import random
+
+mydb = mysql.connector.Connect(
+    host='localhost',
+    user='root',
+    password='Kiran@982326',
+    database='ParkingLot'
+)
+
 
 # car number
 state = ['MH', 'BR', 'HR', 'KA', 'MP', 'ML', 'PB', 'DL', 'UP', 'UT', 'TN', 'RJ', 'KL', 'TG']
@@ -59,3 +69,22 @@ def getCardType():
 
 def getCardNumber():
     return __CardNumberRand()
+
+
+def getSpotNumDB():
+    mycursor = mydb.cursor()
+
+    sql = "SELECT SrNum FROM ParkingLot.ParkingSpot WHERE Spot = 'Null'"
+
+    mycursor.execute(sql)
+    li = []
+    for i in mycursor:
+        li.append(list(i)[0])
+
+    if len(li) == 0:
+        return None
+
+    # print(li)
+    mydb.commit()
+    return random.choice(li)
+
