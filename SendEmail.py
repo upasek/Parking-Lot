@@ -38,7 +38,7 @@ class sendParkingTicket(object):
         try:
             ob = smtplib.SMTP('imap.gmail.com', 587)
             ob.starttls()
-            ob.login("ParkingLotSystem12@gmail.com", "rstrpktmlhpqpzas")
+            ob.login("MailID@gmail.com", "passward")
             subject = "PARKING TICKET"
 
             body = self.str
